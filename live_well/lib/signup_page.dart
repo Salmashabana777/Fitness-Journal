@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'home_page.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -12,10 +13,10 @@ class _SignUpPageState extends State<SignUpPage> {
   bool _obscureConfirmPassword = true;
 
   // Theme colors
-  final Color _primaryColor = const Color(0xFF6D3B47); // Deep Mauve
-  final Color _backgroundColor1 = const Color(0xFFFFF7E6); // Ivory Warm
-  final Color _backgroundColor2 = const Color(0xFFFFD28E); // Apricot
-  final Color _textColor = const Color(0xFF4E342E); // Carob
+  final Color _primaryColor = const Color(0xFF4CAF50); // Same as HomePage
+  final Color _backgroundColor1 = const Color(0xFFE8F5E9); // Same as HomePage
+  final Color _backgroundColor2 = const Color(0xFFC8E6C9); // Same as HomePage
+  final Color _textColor = const Color(0xFF2E7D32); // Same as HomePage
 
   void _togglePasswordVisibility() {
     setState(() {
@@ -104,7 +105,12 @@ class _SignUpPageState extends State<SignUpPage> {
                         ),
                         TextButton(
                           onPressed: () {
-                            Navigator.pop(context); // Go back to login page
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const HomePage(initialPage: 1)),
+                            );
                           },
                           child: Text(
                             'Sign In',

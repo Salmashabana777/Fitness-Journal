@@ -11,11 +11,11 @@ class _QuizScreenState extends State<QuizScreen> {
   Map<String, dynamic> _answers = {};
 
   // Custom color palette matching dashboard
-  final Color backgroundColor1 = const Color(0xFF556B2F);
-  final Color backgroundColor2 = const Color(0xFF3E4B2B);
-  final Color backgroundColor3 = const Color(0xFF6B8E23);
-  final Color iconColor = const Color(0xFF808080);
-  final Color textColor = const Color(0xFFFFFFF0);
+  final Color backgroundColor1 = const Color(0xFF2F4F2F);
+  final Color backgroundColor2 = const Color(0xFF5C4033);
+  final Color backgroundColor3 = const Color(0xFF3F513A);
+  final Color iconColor = const Color(0xFF4A4A4A);
+  final Color textColor = const Color(0xFFFFFFF0); // Ivory
   final Color cardColor = Colors.black54;
   final Color accentColor = const Color(0xFFDCDCDC);
 

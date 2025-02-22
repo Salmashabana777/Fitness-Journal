@@ -88,12 +88,24 @@ class _SplashScreenState extends State<SplashScreen>
                         text: TextSpan(
                           children: [
                             TextSpan(
-                              text: 'Live',
-                              style: Theme.of(context).textTheme.headlineLarge,
+                              text: 'live',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineLarge
+                                  ?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                             ),
                             TextSpan(
                               text: 'WELL',
-                              style: Theme.of(context).textTheme.headlineMedium,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineMedium
+                                  ?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                             ),
                           ],
                         ),

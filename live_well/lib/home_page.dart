@@ -1,21 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:live_well/signup_page.dart';
+import 'package:live_well/dashboard.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final int initialPage;
+
+  const HomePage({super.key, this.initialPage = 0});
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  final PageController _pageController = PageController(initialPage: 0);
+  late final PageController _pageController;
+
   bool _obscurePassword = true;
 
   static const _primaryColor = Color(0xFF4CAF50);
   static const _backgroundColor1 = Color(0xFFE8F5E9);
   static const _backgroundColor2 = Color(0xFFC8E6C9);
   static const _textColor = Color(0xFF2E7D32);
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: widget.initialPage);
+  }
 
   @override
   void dispose() {
@@ -144,7 +154,7 @@ class _HomePageState extends State<HomePage> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const Dashboard()),
+                            builder: (context) => DashboardScreen()),
                       );
                     },
                     style: ElevatedButton.styleFrom(
@@ -156,6 +166,20 @@ class _HomePageState extends State<HomePage> {
                           borderRadius: BorderRadius.circular(12)),
                     ),
                     child: const Text('Sign In'),
+                  ),
+                  const SizedBox(height: 16),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const SignUpPage()),
+                      );
+                    },
+                    child: const Text(
+                      'Don\'t have an account? Sign Up',
+                      style: TextStyle(color: _primaryColor),
+                    ),
                   ),
                 ],
               ),
