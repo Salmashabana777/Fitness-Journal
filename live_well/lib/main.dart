@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
+// import 'package:firebase_core/firebase_core.dart';
 import 'package:live_well/splashscreen.dart';
 import 'package:live_well/quiz_screen.dart';
 import 'package:live_well/signup_page.dart';
