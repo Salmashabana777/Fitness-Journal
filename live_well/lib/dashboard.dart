@@ -1,4 +1,103 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+class OverlayNotification {
+  static OverlayEntry? _overlayEntry;
+
+  static void show({
+    required BuildContext context,
+    required String message,
+    Color backgroundColor = Colors.orange,
+    Color textColor = Colors.white,
+    Duration duration = const Duration(seconds: 4),
+  }) {
+    dismiss();
+
+    _overlayEntry = OverlayEntry(
+      builder: (context) => TopNotificationBanner(
+        message: message,
+        backgroundColor: backgroundColor,
+        textColor: textColor,
+        onDismiss: dismiss,
+      ),
+    );
+
+    Overlay.of(context).insert(_overlayEntry!);
+
+    if (duration != Duration.zero) {
+      Future.delayed(duration, dismiss);
+    }
+  }
+
+  static void dismiss() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+}
+
+class TopNotificationBanner extends StatelessWidget {
+  final String message;
+  final Color backgroundColor;
+  final Color textColor;
+  final VoidCallback onDismiss;
+
+  const TopNotificationBanner({
+    required this.message,
+    required this.backgroundColor,
+    required this.textColor,
+    required this.onDismiss,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: Container(
+          margin: const EdgeInsets.only(top: 8),
+          constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.9),
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 4,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.warning_amber_rounded, size: 16, color: textColor),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  message,
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 12,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: onDismiss,
+                child: Icon(Icons.close, size: 16, color: textColor),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class DashboardScreen extends StatefulWidget {
   @override
@@ -6,6 +105,8 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  String openWeatherApiKey = 'ac8e67c62c1cf48d3f846db762509cd3';
+  String openWeatherUrl = 'https://api.openweathermap.org/data/2.5/weather';
   double waterIntake = 0.0;
   double? bmiResult;
   TextEditingController heightController = TextEditingController();
@@ -24,17 +125,96 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final Color cardColor = Colors.black54;
   final Color accentColor = const Color(0xFFDCDCDC);
 
-  void _incrementWater() {
-    setState(() {
-      waterIntake += 0.25;
-    });
-  }
+void _incrementWater() {
+  setState(() {
+    waterIntake += 0.25;
+  });
+  _checkWaterIntake(); // Add this line
+}
 
-  void _resetWater() {
-    setState(() {
-      waterIntake = 0.0;
-    });
+
+void _resetWater() {
+  setState(() {
+    waterIntake = 0.0;
+  });
+  _checkWaterIntake(); // Add this line
+}
+
+Future<Map<String, dynamic>?> _fetchWeatherData() async {
+  try {
+    final response = await http.get(
+      Uri.parse('$openWeatherUrl?q=Cochin&appid=$openWeatherApiKey&units=metric'), // Replace "Colombo" with your city
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      print('Weather data for YOUR_CITY: $data'); // Debug print
+      return data;
+    } else {
+      print('API Error: ${response.statusCode} - ${response.body}');
+      return null;
+    }
+  } catch (e) {
+    print('Network Error: $e');
+    return null;
   }
+}
+
+// Add this widget to your build method somewhere
+Widget _buildWeatherWidget() {
+  return FutureBuilder<Map<String, dynamic>?>(
+    future: _fetchWeatherData(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return CircularProgressIndicator();
+      }
+      
+      if (snapshot.hasError || !snapshot.hasData) {
+        return Icon(Icons.error);
+      }
+      
+      final weatherData = snapshot.data!;
+      final temp = weatherData['main']['temp'].round();
+      final weather = weatherData['weather'][0]['main'];
+      
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.wb_sunny, color: textColor),
+          SizedBox(width: 8),
+          Text(
+            '$temp°C | $weather',
+            style: TextStyle(color: textColor),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+void _checkWaterIntake() async {
+  final weatherData = await _fetchWeatherData();
+  if (weatherData == null) return;
+
+  final temp = weatherData['main']['temp'] as double;
+  final humidity = weatherData['main']['humidity'] as double;
+
+  double recommendedIntake = (3.0 + (temp - 20) * 0.05 + (50 - humidity) * 0.01)
+      .clamp(2.0, 5.0);
+
+  if (waterIntake < recommendedIntake && mounted) {
+    OverlayNotification.show(
+      context: context,
+      message: 'Drink more water! (${recommendedIntake.toStringAsFixed(1)}L recommended)',
+    );
+  }
+  else {
+    OverlayNotification.show(
+      context: context,
+      message: 'You have drank the recommended amount of water',
+    );
+  }
+}
 
   void _calculateBMI() {
     try {
@@ -340,7 +520,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
 
               SizedBox(height: 25),
-
+              _buildWeatherWidget(),
               // Calorie Tracker
               InkWell(
                 onTap: () {
@@ -520,96 +700,119 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildWaterIntake() {
-    return Card(
-      elevation: 4,
-      margin: EdgeInsets.symmetric(vertical: 8),
-      color: cardColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: InkWell(
-        onTap: () {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                backgroundColor: backgroundColor1,
-                title: Text('Water Intake', style: TextStyle(color: textColor)),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '${waterIntake.toStringAsFixed(2)} L',
-                      style: TextStyle(color: textColor, fontSize: 24),
-                    ),
-                    SizedBox(height: 20),
-                    Text(
-                      'Each + adds 250ml of water',
-                      style: TextStyle(color: accentColor),
-                    ),
-                  ],
-                ),
-                actions: [
-                  TextButton(
-                    child: Text('Reset', style: TextStyle(color: textColor)),
-                    onPressed: () {
-                      _resetWater();
-                      Navigator.of(context).pop();
-                    },
+Widget _buildWaterIntake() {
+  return Card(
+    elevation: 4,
+    margin: EdgeInsets.symmetric(vertical: 8),
+    color: cardColor,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    child: InkWell(
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              backgroundColor: backgroundColor1,
+              title: Text('Water Intake', style: TextStyle(color: textColor)),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '${waterIntake.toStringAsFixed(2)} L',
+                    style: TextStyle(color: textColor, fontSize: 24),
                   ),
-                  TextButton(
-                    child: Text('Close', style: TextStyle(color: textColor)),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
+                  SizedBox(height: 20),
+                  Text(
+                    'Each + adds 250ml of water',
+                    style: TextStyle(color: accentColor),
                   ),
+                  SizedBox(height: 20),
                 ],
-              );
-            },
-          );
-        },
-        borderRadius: BorderRadius.circular(12),
-        child: ListTile(
-          leading: Container(
-            padding: EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: iconColor,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(Icons.local_drink, color: textColor),
+              ),
+              actions: [
+                TextButton(
+                  child: Text('Reset', style: TextStyle(color: textColor)),
+                  onPressed: () {
+                    _resetWater();
+                    Navigator.of(context).pop();
+                  },
+                ),
+                TextButton(
+                  child: Text('Close', style: TextStyle(color: textColor)),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: ListTile(
+        leading: Container(
+          padding: EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: iconColor,
+            borderRadius: BorderRadius.circular(8),
           ),
-          title: Text(
-            "Water Intake",
-            style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
-          ),
-          subtitle: Text(
-            "${waterIntake.toStringAsFixed(2)} L",
-            style: TextStyle(color: accentColor.withOpacity(0.8)),
-          ),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                icon: Container(
-                  decoration: BoxDecoration(
-                    color: iconColor,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.all(8),
-                    child: Icon(Icons.add, color: textColor),
+          child: Icon(Icons.local_drink, color: textColor),
+        ),
+        title: Text(
+          "Water Intake",
+          style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text(
+          "${waterIntake.toStringAsFixed(2)} L",
+          style: TextStyle(color: accentColor.withOpacity(0.8)),
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // "Check" button - now styled like the "+" button
+            Container(
+              decoration: BoxDecoration(
+                color: iconColor,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: IconButton(
+                icon: Text(
+                  "Check",
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                onPressed: _incrementWater,
+                onPressed: _checkWaterIntake,
+                padding: EdgeInsets.symmetric(horizontal: 8),
               ),
-            ],
-          ),
+            ),
+            SizedBox(width: 8), // Add spacing between buttons
+            // Existing "+" button
+            IconButton(
+              icon: Container(
+                decoration: BoxDecoration(
+                  color: iconColor,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Icon(Icons.add, color: textColor),
+                ),
+              ),
+              onPressed: _incrementWater,
+            ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   @override
   void dispose() {
+    OverlayNotification.dismiss();
     heightController.dispose();
     weightController.dispose();
     mealNameController.dispose();

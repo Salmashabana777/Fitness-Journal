@@ -2,7 +2,7 @@ plugins {
     id "com.android.application"
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
-    id "com.google.gms.google-services" // Google services for Firebase
+    id "com.google.gms.google-services"
 }
 
 android {
@@ -21,7 +21,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.live_well"
-        minSdkVersion 23 // Manually set minSdkVersion to 23
+        minSdkVersion 23
         targetSdk flutter.targetSdkVersion
         versionCode flutter.versionCode
         versionName flutter.versionName
@@ -39,10 +39,10 @@ flutter {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.0" // Updated Kotlin version
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"  // Use the variable from project-level
 
-    // Firebase BOM (Bill of Materials) to manage Firebase dependencies
-    implementation platform('com.google.firebase:firebase-bom:32.7.0')
+    // Firebase BOM (Bill of Materials)
+    implementation platform('com.google.firebase:firebase-bom:33.11.0')
 
     // Firebase services
     implementation 'com.google.firebase:firebase-auth'

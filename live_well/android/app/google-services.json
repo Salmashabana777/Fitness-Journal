@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "132817414724",
-    "project_id": "livewell-55ac9",
-    "storage_bucket": "livewell-55ac9.firebasestorage.app"
+    "project_number": "1089167770003",
+    "project_id": "live-well-3614f",
+    "storage_bucket": "live-well-3614f.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:132817414724:android:e96e21b334bbaa0dd66a11",
+        "mobilesdk_app_id": "1:1089167770003:android:514dfe5a87a9a9629c2866",
         "android_client_info": {
           "package_name": "com.example.live_well"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAXpwVuoyHp9xKtU6roglnLtpSTuppDQUo"
+          "current_key": "AIzaSyDK0diLU5JbzDtH9k44cMuoYC7vo6awESo"
         }
       ],
       "services": {

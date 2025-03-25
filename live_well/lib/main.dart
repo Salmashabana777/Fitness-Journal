@@ -4,9 +4,10 @@ import 'package:live_well/splashscreen.dart';
 import 'package:live_well/quiz_screen.dart';
 import 'package:live_well/signup_page.dart';
 
+
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  // WidgetsFlutterBinding.ensureInitialized();
+  // await Firebase.initializeApp();
   runApp(const MyApp());
 }
 

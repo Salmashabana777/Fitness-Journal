@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:live_well/signup_page.dart';
 import 'package:live_well/dashboard.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 class HomePage extends StatefulWidget {
   final int initialPage;
-
-  const HomePage({super.key, this.initialPage = 0});
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  HomePage({super.key, this.initialPage = 0});
 
   @override
   State<HomePage> createState() => _HomePageState();
