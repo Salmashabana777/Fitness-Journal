@@ -38,6 +38,8 @@ dependencies:
   http: ^0.13.5
   geolocator: ^10.0.0  # For GPS location
   shared_preferences: ^2.2.0 # To save user's location
+  pedometer: ^3.0.0
+  permission_handler: ^10.4.0 
 
 dev_dependencies:
   flutter_test:

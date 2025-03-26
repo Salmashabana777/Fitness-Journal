@@ -143,12 +143,12 @@ void _resetWater() {
 Future<Map<String, dynamic>?> _fetchWeatherData() async {
   try {
     final response = await http.get(
-      Uri.parse('$openWeatherUrl?q=Cochin&appid=$openWeatherApiKey&units=metric'), // Replace "Colombo" with your city
+      Uri.parse('$openWeatherUrl?q=Cochin&appid=$openWeatherApiKey&units=metric'),
     );
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      print('Weather data for YOUR_CITY: $data'); // Debug print
+      print('Weather data for YOUR_CITY: $data');
       return data;
     } else {
       print('API Error: ${response.statusCode} - ${response.body}');
@@ -180,12 +180,12 @@ Widget _buildWeatherWidget() {
       return Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.wb_sunny, color: textColor),
-          SizedBox(width: 8),
-          Text(
-            '$temp°C | $weather',
-            style: TextStyle(color: textColor),
-          ),
+          // Icon(Icons.wb_sunny, color: textColor),
+          // SizedBox(width: 8),
+          // Text(
+          //   '$temp°C | $weather',
+          //   style: TextStyle(color: textColor),
+          // ),
         ],
       );
     },
